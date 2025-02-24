@@ -57,17 +57,17 @@
                     img.onload = function() {
                         drawFrame(); // Redraw the frame
                         
-                        // Calculate scaling to fit inside the photo area
+                        // Calculate scaling to contain the image within the photo area
                         const photoWidth = 875;
                         const photoHeight = 1000;
                         const topMargin = 85;
                         const x = (canvas.width - photoWidth) / 2;
                         const y = topMargin;
                         
-                        let scale = Math.max(photoWidth / img.width, photoHeight / img.height);
+                        let scale = Math.min(photoWidth / img.width, photoHeight / img.height);
                         let imgWidth = img.width * scale;
                         let imgHeight = img.height * scale;
-                        let imgX = (canvas.width - imgWidth) / 2;
+                        let imgX = x + (photoWidth - imgWidth) / 2;
                         let imgY = y + (photoHeight - imgHeight) / 2;
                         
                         ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
