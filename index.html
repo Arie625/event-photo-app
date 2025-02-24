@@ -22,7 +22,7 @@
 <body>
     <h2>Upload Your Photo</h2>
     <input type="file" id="upload" accept="image/*"><br><br>
-    <canvas id="canvas" width="400" height="500"></canvas>
+    <canvas id="canvas" width="1920" height="2560"></canvas>
     <br>
     <textarea id="message" placeholder="Write your message..."></textarea>
     <br>
@@ -47,10 +47,10 @@
                         ctx.fillStyle = "white";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
-                        // Scale and position image to fill the frame
-                        let scale = Math.max(canvas.width / img.width, (canvas.height - 150) / img.height);
-                        let x = (canvas.width / 2) - (img.width / 2) * scale;
-                        let y = 25;
+                        // Scale and position image to fit within 1750x2000 area
+                        let scale = Math.max(1750 / img.width, 2000 / img.height);
+                        let x = (canvas.width / 2) - (img.width * scale / 2);
+                        let y = 200;
                         ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
                         
                         drawTemplate();
@@ -63,8 +63,8 @@
 
         function drawTemplate() {
             ctx.fillStyle = "black";
-            ctx.font = "18px Arial";
-            ctx.fillText(messageInput.value, 50, 450);
+            ctx.font = "48px Arial";
+            ctx.fillText(messageInput.value, 100, 2400);
         }
 
         messageInput.addEventListener('input', drawTemplate);
