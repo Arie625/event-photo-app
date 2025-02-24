@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polaroid Frame</title>
+    <title>Polaroid Photo Upload</title>
     <style>
         body {
             text-align: center;
@@ -24,34 +24,32 @@
     <button onclick="drawText()">Add Text</button>
     <br><br>
     <canvas id="canvas" width="960" height="1280"></canvas>
-    
+    <br><br>
+    <button onclick="uploadToDrive()">Upload to Google Drive</button>
+
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const upload = document.getElementById('upload');
         const textInput = document.getElementById('textInput');
-        
+
         function drawFrame() {
-            // Draw the white polaroid frame
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Define the photo area (centered)
+
             const photoWidth = 875;
             const photoHeight = 1000;
-            const topMargin = 85; // White space on top
+            const topMargin = 85;
             const x = (canvas.width - photoWidth) / 2;
             const y = topMargin;
-            
-            // Draw the photo placeholder
-            ctx.fillStyle = "#ddd"; // Light gray placeholder
+
+            ctx.fillStyle = "#ddd"; 
             ctx.fillRect(x, y, photoWidth, photoHeight);
-            
-            // Draw the bottom text area
+
             ctx.fillStyle = "white";
             ctx.fillRect(0, 1100, canvas.width, 180);
         }
-        
+
         function loadImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -59,24 +57,21 @@
                 reader.onload = function(e) {
                     const img = new Image();
                     img.onload = function() {
-                        drawFrame(); // Redraw the frame
-                        
-                        // Calculate scaling to fill the image inside the photo area without overflow
+                        drawFrame(); 
+
                         const photoWidth = 875;
                         const photoHeight = 1000;
                         const topMargin = 85;
                         const x = (canvas.width - photoWidth) / 2;
                         const y = topMargin;
-                        
+
                         let scale = Math.max(photoWidth / img.width, photoHeight / img.height);
                         let imgWidth = img.width * scale;
                         let imgHeight = img.height * scale;
-                        
-                        // Center the image properly within the designated area
+
                         let imgX = x + (photoWidth - imgWidth) / 2;
                         let imgY = y + (photoHeight - imgHeight) / 2;
-                        
-                        // Clip the image so it doesn't overflow the photo area
+
                         ctx.save();
                         ctx.beginPath();
                         ctx.rect(x, y, photoWidth, photoHeight);
@@ -89,7 +84,7 @@
                 reader.readAsDataURL(file);
             }
         }
-        
+
         function drawText() {
             const text = textInput.value;
             ctx.fillStyle = "black";
@@ -97,14 +92,27 @@
             ctx.textAlign = "center";
             ctx.fillText(text, canvas.width / 2, 1200);
         }
-        
+
+        function uploadToDrive() {
+            canvas.toBlob((blob) => {
+                const formData = new FormData();
+                formData.append("image", blob, "polaroid.png");
+
+                fetch("https://script.google.com/macros/s/AKfycbxh1sKOisR0O5dgwU3TmBP5igBycb0q3wpRsxfEH45kOIHrOl0iNbmwIi7RHLbk7v7X/exec", { // Replace with your script URL
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log("Upload successful:", data);
+                    alert("Image uploaded successfully!");
+                })
+                .catch(error => console.error("Upload failed:", error));
+            }, "image/png");
+        }
+
         upload.addEventListener('change', loadImage);
         drawFrame();
     </script>
-
-    <br><br>
-<button onclick="uploadToDrive()">Upload to Google Drive</button>
-
-
 </body>
 </html>
