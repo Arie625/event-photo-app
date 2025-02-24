@@ -9,10 +9,25 @@
             text-align: center;
             font-family: Arial, sans-serif;
         }
-        #canvas {
+        #canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: auto;
+        }
+        canvas {
+            max-width: 90vw;
+            max-height: 90vh;
             border: 5px solid white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             background: white;
+        }
+        @media screen and (max-width: 768px) {
+            canvas {
+                max-width: 95vw;
+                max-height: 80vh;
+            }
         }
     </style>
 </head>
@@ -23,7 +38,9 @@
     <input type="text" id="textInput" placeholder="Enter your text here">
     <button onclick="drawText()">Add Text</button>
     <br><br>
-    <canvas id="canvas" width="960" height="1280"></canvas>
+    <div id="canvas-container">
+        <canvas id="canvas" width="960" height="1280"></canvas>
+    </div>
     <br><br>
     <button onclick="uploadToDrive()">Upload to Google Drive</button>
 
@@ -32,6 +49,13 @@
         const ctx = canvas.getContext('2d');
         const upload = document.getElementById('upload');
         const textInput = document.getElementById('textInput');
+
+        function resizeCanvas() {
+            const scaleFactor = Math.min(window.innerWidth / 960, window.innerHeight / 1280);
+            canvas.width = 960 * scaleFactor;
+            canvas.height = 1280 * scaleFactor;
+            drawFrame();
+        }
 
         function drawFrame() {
             ctx.fillStyle = "white";
@@ -93,30 +117,31 @@
             ctx.fillText(text, canvas.width / 2, 1200);
         }
 
-       function uploadToDrive() {
-    canvas.toBlob((blob) => {
-        const formData = new FormData();
-        formData.append("image", blob, "polaroid.png");
+        function uploadToDrive() {
+            canvas.toBlob((blob) => {
+                const formData = new FormData();
+                formData.append("image", blob, "polaroid.png");
 
-        console.log("Uploading image...");
+                console.log("Uploading image...");
 
-        fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", { // Replace with the Zapier Webhook URL
-            method: "POST",
-            body: formData
-        })
-        .then(response => {
-            console.log("Upload request sent.");
-            alert("Upload request sent to Zapier!");
-        })
-        .catch(error => {
-            console.error("Upload failed:", error);
-            alert("Upload failed. Check the console for details.");
-        });
-    }, "image/png");
-}
-
+                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => {
+                    console.log("Upload request sent.");
+                    alert("Upload request sent to Zapier!");
+                })
+                .catch(error => {
+                    console.error("Upload failed:", error);
+                    alert("Upload failed. Check the console for details.");
+                });
+            }, "image/png");
+        }
 
         upload.addEventListener('change', loadImage);
+        window.addEventListener("load", resizeCanvas);
+        window.addEventListener("resize", resizeCanvas);
         drawFrame();
     </script>
 </body>
