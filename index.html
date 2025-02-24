@@ -62,6 +62,11 @@
         });
 
         function drawTemplate() {
+            // Draw white frame area for text
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 1100, canvas.width, 180);
+            
+            // Draw user message
             ctx.fillStyle = "black";
             ctx.font = "24px Arial";
             ctx.fillText(messageInput.value, 80, 1200);
@@ -70,6 +75,7 @@
         messageInput.addEventListener('input', drawTemplate);
 
         function saveImage() {
+            drawTemplate(); // Ensure the message is drawn before saving
             const link = document.createElement('a');
             link.download = 'polaroid_photo.png';
             link.href = canvas.toDataURL("image/png");
