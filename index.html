@@ -94,22 +94,28 @@
         }
 
         function uploadToDrive() {
-            canvas.toBlob((blob) => {
-                const formData = new FormData();
-                formData.append("image", blob, "polaroid.png");
+    canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append("image", blob, "polaroid.png");
 
-                fetch("https://script.google.com/macros/s/AKfycbxh1sKOisR0O5dgwU3TmBP5igBycb0q3wpRsxfEH45kOIHrOl0iNbmwIi7RHLbk7v7X/exec", { // Replace with your script URL
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log("Upload successful:", data);
-                    alert("Image uploaded successfully!");
-                })
-                .catch(error => console.error("Upload failed:", error));
-            }, "image/png");
-        }
+        console.log("Uploading image..."); // Debugging log
+
+        fetch("https://script.google.com/macros/s/AKfycbxh1sKOisR0O5dgwU3TmBP5igBycb0q3wpRsxfEH45kOIHrOl0iNbmwIi7RHLbk7v7X/exec", { // Replace with your actual script URL
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log("Response from server:", data);
+            alert("Upload successful! Response: " + data);
+        })
+        .catch(error => {
+            console.error("Upload failed:", error);
+            alert("Upload failed. Check the console for details.");
+        });
+    }, "image/png");
+}
+
 
         upload.addEventListener('change', loadImage);
         drawFrame();
