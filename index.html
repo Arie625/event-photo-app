@@ -43,10 +43,6 @@
                     img.onload = function() {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         
-                        // Draw white frame (top frame included)
-                        ctx.fillStyle = "white";
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
                         // Define image area inside the frame
                         const photoWidth = 875;
                         const photoHeight = 1000;
@@ -54,13 +50,22 @@
                         const x = (canvas.width - photoWidth) / 2;
                         const y = topMargin;
                         
-                        // Draw image centered inside the frame
+                        // Draw image centered inside the frame (move to back)
                         let scale = Math.max(photoWidth / img.width, photoHeight / img.height);
                         let imgWidth = img.width * scale;
                         let imgHeight = img.height * scale;
                         let imgX = (canvas.width - imgWidth) / 2;
                         let imgY = topMargin + (photoHeight - imgHeight) / 2;
+                        
                         ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
+                        
+                        // Draw white frame (on top of the photo)
+                        ctx.fillStyle = "white";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Draw white frame area for text
+                        ctx.fillStyle = "white";
+                        ctx.fillRect(0, 1100, canvas.width, 180);
                         
                         drawTemplate();
                     };
@@ -71,10 +76,6 @@
         });
 
         function drawTemplate() {
-            // Draw white frame area for text
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 1100, canvas.width, 180);
-            
             // Draw user message (centered)
             ctx.fillStyle = "black";
             ctx.font = "24px Arial";
