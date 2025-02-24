@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polaroid Photo Upload</title>
+    <title>Polaroid Frame</title>
     <style>
         body {
             text-align: center;
             font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
         }
         #canvas-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: auto;
+            max-width: 100%;
+            overflow: hidden;
         }
-        canvas {
-            max-width: 90vw;
-            max-height: 90vh;
+        #canvas {
             border: 5px solid white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             background: white;
-        }
-        @media screen and (max-width: 768px) {
-            canvas {
-                max-width: 95vw;
-                max-height: 80vh;
-            }
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
@@ -49,13 +49,6 @@
         const ctx = canvas.getContext('2d');
         const upload = document.getElementById('upload');
         const textInput = document.getElementById('textInput');
-
-        function resizeCanvas() {
-            const scaleFactor = Math.min(window.innerWidth / 960, window.innerHeight / 1280);
-            canvas.width = 960 * scaleFactor;
-            canvas.height = 1280 * scaleFactor;
-            drawFrame();
-        }
 
         function drawFrame() {
             ctx.fillStyle = "white";
@@ -117,14 +110,14 @@
             ctx.fillText(text, canvas.width / 2, 1200);
         }
 
-        function uploadToDrive() {
+       function uploadToDrive() {
             canvas.toBlob((blob) => {
                 const formData = new FormData();
                 formData.append("image", blob, "polaroid.png");
 
                 console.log("Uploading image...");
 
-                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
+                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", { 
                     method: "POST",
                     body: formData
                 })
@@ -140,8 +133,6 @@
         }
 
         upload.addEventListener('change', loadImage);
-        window.addEventListener("load", resizeCanvas);
-        window.addEventListener("resize", resizeCanvas);
         drawFrame();
     </script>
 </body>
