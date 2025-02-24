@@ -47,12 +47,12 @@
                         ctx.fillStyle = "white";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
-                        // Scale and position image center-center
+                        // Scale and position image center-center with 42.5px top margin
                         let scale = Math.max(875 / img.width, 1000 / img.height);
                         let imgWidth = img.width * scale;
                         let imgHeight = img.height * scale;
                         let x = (canvas.width - imgWidth) / 2;
-                        let y = (1100 - imgHeight) / 2;
+                        let y = ((1100 - imgHeight) / 2) + 42.5;
                         ctx.drawImage(img, x, y, imgWidth, imgHeight);
                         
                         drawTemplate();
