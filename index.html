@@ -98,16 +98,19 @@
         const formData = new FormData();
         formData.append("image", blob, "polaroid.png");
 
-        console.log("Uploading image..."); // Debugging log
+        console.log("Uploading image...");
 
-        fetch("https://script.google.com/macros/s/AKfycbxh1sKOisR0O5dgwU3TmBP5igBycb0q3wpRsxfEH45kOIHrOl0iNbmwIi7RHLbk7v7X/exec", { // Replace with your actual script URL
+        fetch("https://script.google.com/macros/s/AKfycbwQ_5pCtc9z6_2Ymnehgmrqa7g4JzLRnwhR4RXyRTtOrO3K8INUwaaV3NYfCU2grTqA/exec", { // Replace with your new Google Apps Script URL
             method: "POST",
-            body: formData
+            body: formData,
+            headers: {
+                "Access-Control-Allow-Origin": "*"
+            }
         })
-        .then(response => response.text())
+        .then(response => response.json())
         .then(data => {
-            console.log("Response from server:", data);
-            alert("Upload successful! Response: " + data);
+            console.log("Upload successful:", data);
+            alert("Upload successful! File URL: " + data.fileUrl);
         })
         .catch(error => {
             console.error("Upload failed:", error);
@@ -115,7 +118,6 @@
         });
     }, "image/png");
 }
-
 
         upload.addEventListener('change', loadImage);
         drawFrame();
