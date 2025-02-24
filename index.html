@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Photo Upload</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        #canvas {
+            border: 5px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: #f8f8f8;
+        }
+        #controls {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Upload Your Photo</h2>
+    <input type="file" id="upload" accept="image/*"><br><br>
+    <canvas id="canvas" width="400" height="500"></canvas>
+    <br>
+    <textarea id="message" placeholder="Write your message..."></textarea>
+    <br>
+    <button onclick="saveImage()">Download Image</button>
+    
+    <script>
+        const upload = document.getElementById('upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const messageInput = document.getElementById('message');
+
+        upload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = "white";
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 25, 25, 350, 350);
+                        drawTemplate();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function drawTemplate() {
+            ctx.fillStyle = "black";
+            ctx.font = "18px Arial";
+            ctx.fillText(messageInput.value, 50, 450);
+        }
+
+        messageInput.addEventListener('input', drawTemplate);
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'polaroid_photo.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
