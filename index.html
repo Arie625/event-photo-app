@@ -3,31 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polaroid Frame</title>
+    <title>Polaroid Photo Upload</title>
     <style>
         body {
             text-align: center;
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-            margin: 0;
-        }
-        #canvas-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            max-width: 100%;
-            overflow: hidden;
         }
         #canvas {
             border: 5px solid white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             background: white;
-            max-width: 100%;
-            height: auto;
         }
     </style>
 </head>
@@ -38,9 +23,7 @@
     <input type="text" id="textInput" placeholder="Enter your text here">
     <button onclick="drawText()">Add Text</button>
     <br><br>
-    <div id="canvas-container">
-        <canvas id="canvas" width="960" height="1280"></canvas>
-    </div>
+    <canvas id="canvas" width="960" height="1280"></canvas>
     <br><br>
     <button onclick="uploadToDrive()">Upload to Google Drive</button>
 
@@ -111,26 +94,27 @@
         }
 
        function uploadToDrive() {
-            canvas.toBlob((blob) => {
-                const formData = new FormData();
-                formData.append("image", blob, "polaroid.png");
+    canvas.toBlob((blob) => {
+        const formData = new FormData();
+        formData.append("image", blob, "polaroid.png");
 
-                console.log("Uploading image...");
+        console.log("Uploading image...");
 
-                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", { 
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => {
-                    console.log("Upload request sent.");
-                    alert("Upload request sent to Zapier!");
-                })
-                .catch(error => {
-                    console.error("Upload failed:", error);
-                    alert("Upload failed. Check the console for details.");
-                });
-            }, "image/png");
-        }
+        fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", { // Replace with the Zapier Webhook URL
+            method: "POST",
+            body: formData
+        })
+        .then(response => {
+            console.log("Upload request sent.");
+            alert("Upload request sent to Zapier!");
+        })
+        .catch(error => {
+            console.error("Upload failed:", error);
+            alert("Upload failed. Check the console for details.");
+        });
+    }, "image/png");
+}
+
 
         upload.addEventListener('change', loadImage);
         drawFrame();
