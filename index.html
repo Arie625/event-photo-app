@@ -47,8 +47,8 @@
                         ctx.fillStyle = "white";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
-                        // Scale and position image behind the frame
-                        let scale = Math.min((canvas.width - 50) / img.width, (canvas.height - 150) / img.height);
+                        // Scale and position image to fill the frame
+                        let scale = Math.max(canvas.width / img.width, (canvas.height - 150) / img.height);
                         let x = (canvas.width / 2) - (img.width / 2) * scale;
                         let y = 25;
                         ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
