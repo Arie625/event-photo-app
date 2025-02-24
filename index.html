@@ -43,14 +43,14 @@
                     img.onload = function() {
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         
-                        // Draw white frame first
+                        // Draw white frame
                         ctx.fillStyle = "white";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
-                        // Scale and position image to fit within 875x1000 area
+                        // Scale and position image at the top with 42.5px margin
                         let scale = Math.max(875 / img.width, 1000 / img.height);
                         let x = (canvas.width / 2) - (img.width * scale / 2);
-                        let y = 100;
+                        let y = 42.5;
                         ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
                         
                         drawTemplate();
