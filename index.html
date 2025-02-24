@@ -47,11 +47,13 @@
                         ctx.fillStyle = "white";
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         
-                        // Scale and position image at the top with 42.5px margin
+                        // Scale and position image center-center
                         let scale = Math.max(875 / img.width, 1000 / img.height);
-                        let x = (canvas.width / 2) - (img.width * scale / 2);
-                        let y = 42.5;
-                        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                        let imgWidth = img.width * scale;
+                        let imgHeight = img.height * scale;
+                        let x = (canvas.width - imgWidth) / 2;
+                        let y = (1100 - imgHeight) / 2;
+                        ctx.drawImage(img, x, y, imgWidth, imgHeight);
                         
                         drawTemplate();
                     };
@@ -66,10 +68,11 @@
             ctx.fillStyle = "white";
             ctx.fillRect(0, 1100, canvas.width, 180);
             
-            // Draw user message
+            // Draw user message (centered)
             ctx.fillStyle = "black";
             ctx.font = "24px Arial";
-            ctx.fillText(messageInput.value, 80, 1200);
+            ctx.textAlign = "center";
+            ctx.fillText(messageInput.value, canvas.width / 2, 1200);
         }
 
         messageInput.addEventListener('input', drawTemplate);
