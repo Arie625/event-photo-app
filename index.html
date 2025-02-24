@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Photo Upload</title>
+    <title>Polaroid Frame</title>
     <style>
         body {
             text-align: center;
@@ -12,86 +12,74 @@
         #canvas {
             border: 5px solid white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            background: #f8f8f8;
-        }
-        #controls {
-            margin-top: 10px;
+            background: white;
         }
     </style>
 </head>
 <body>
-    <h2>Upload Your Photo</h2>
-    <input type="file" id="upload" accept="image/*"><br><br>
+    <h2>Polaroid Frame</h2>
+    <input type="file" id="upload" accept="image/*">
+    <br><br>
     <canvas id="canvas" width="960" height="1280"></canvas>
-    <br>
-    <textarea id="message" placeholder="Write your message..."></textarea>
-    <br>
-    <button onclick="saveImage()">Download Image</button>
     
     <script>
-        const upload = document.getElementById('upload');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const messageInput = document.getElementById('message');
-
-        upload.addEventListener('change', function(event) {
+        const upload = document.getElementById('upload');
+        
+        function drawFrame() {
+            // Draw the white polaroid frame
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Define the photo area (centered)
+            const photoWidth = 875;
+            const photoHeight = 1000;
+            const topMargin = 85; // White space on top
+            const x = (canvas.width - photoWidth) / 2;
+            const y = topMargin;
+            
+            // Draw the photo placeholder
+            ctx.fillStyle = "#ddd"; // Light gray placeholder
+            ctx.fillRect(x, y, photoWidth, photoHeight);
+            
+            // Draw the bottom text area
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 1100, canvas.width, 180);
+        }
+        
+        function loadImage(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = new Image();
                     img.onload = function() {
-                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        drawFrame(); // Redraw the frame
                         
-                        // Define image area inside the frame
+                        // Calculate scaling to fit inside the photo area
                         const photoWidth = 875;
                         const photoHeight = 1000;
-                        const topMargin = 85; // Ensuring top white frame
+                        const topMargin = 85;
                         const x = (canvas.width - photoWidth) / 2;
                         const y = topMargin;
                         
-                        // Draw image centered inside the frame (move to back)
                         let scale = Math.max(photoWidth / img.width, photoHeight / img.height);
                         let imgWidth = img.width * scale;
                         let imgHeight = img.height * scale;
                         let imgX = (canvas.width - imgWidth) / 2;
-                        let imgY = topMargin + (photoHeight - imgHeight) / 2;
+                        let imgY = y + (photoHeight - imgHeight) / 2;
                         
                         ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
-                        
-                        // Draw white frame (on top of the photo)
-                        ctx.fillStyle = "white";
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-                        
-                        // Draw white frame area for text
-                        ctx.fillStyle = "white";
-                        ctx.fillRect(0, 1100, canvas.width, 180);
-                        
-                        drawTemplate();
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
-        });
-
-        function drawTemplate() {
-            // Draw user message (centered)
-            ctx.fillStyle = "black";
-            ctx.font = "24px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(messageInput.value, canvas.width / 2, 1200);
         }
-
-        messageInput.addEventListener('input', drawTemplate);
-
-        function saveImage() {
-            drawTemplate(); // Ensure the message is drawn before saving
-            const link = document.createElement('a');
-            link.download = 'polaroid_photo.png';
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-        }
+        
+        upload.addEventListener('change', loadImage);
+        drawFrame();
     </script>
 </body>
 </html>
