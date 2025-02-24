@@ -93,24 +93,20 @@
             ctx.fillText(text, canvas.width / 2, 1200);
         }
 
-        function uploadToDrive() {
+       function uploadToDrive() {
     canvas.toBlob((blob) => {
         const formData = new FormData();
         formData.append("image", blob, "polaroid.png");
 
         console.log("Uploading image...");
 
-        fetch("https://script.google.com/macros/s/AKfycbwQ_5pCtc9z6_2Ymnehgmrqa7g4JzLRnwhR4RXyRTtOrO3K8INUwaaV3NYfCU2grTqA/exec", { // Replace with your new Google Apps Script URL
+        fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", { // Replace with the Zapier Webhook URL
             method: "POST",
-            body: formData,
-            headers: {
-                "Access-Control-Allow-Origin": "*"
-            }
+            body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Upload successful:", data);
-            alert("Upload successful! File URL: " + data.fileUrl);
+        .then(response => {
+            console.log("Upload request sent.");
+            alert("Upload request sent to Zapier!");
         })
         .catch(error => {
             console.error("Upload failed:", error);
@@ -118,6 +114,7 @@
         });
     }, "image/png");
 }
+
 
         upload.addEventListener('change', loadImage);
         drawFrame();
