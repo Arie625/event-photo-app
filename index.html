@@ -61,7 +61,7 @@
                     img.onload = function() {
                         drawFrame(); // Redraw the frame
                         
-                        // Calculate scaling to fill the image within the photo area
+                        // Calculate scaling to fill the image inside the photo area without overflow
                         const photoWidth = 875;
                         const photoHeight = 1000;
                         const topMargin = 85;
@@ -71,10 +71,18 @@
                         let scale = Math.max(photoWidth / img.width, photoHeight / img.height);
                         let imgWidth = img.width * scale;
                         let imgHeight = img.height * scale;
+                        
+                        // Center the image properly within the designated area
                         let imgX = x + (photoWidth - imgWidth) / 2;
                         let imgY = y + (photoHeight - imgHeight) / 2;
                         
+                        // Clip the image so it doesn't overflow the photo area
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.rect(x, y, photoWidth, photoHeight);
+                        ctx.clip();
                         ctx.drawImage(img, imgX, imgY, imgWidth, imgHeight);
+                        ctx.restore();
                     };
                     img.src = e.target.result;
                 };
