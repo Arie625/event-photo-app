@@ -20,12 +20,16 @@
     <h2>Polaroid Frame</h2>
     <input type="file" id="upload" accept="image/*">
     <br><br>
+    <input type="text" id="textInput" placeholder="Enter your text here">
+    <button onclick="drawText()">Add Text</button>
+    <br><br>
     <canvas id="canvas" width="960" height="1280"></canvas>
     
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const upload = document.getElementById('upload');
+        const textInput = document.getElementById('textInput');
         
         function drawFrame() {
             // Draw the white polaroid frame
@@ -76,6 +80,14 @@
                 };
                 reader.readAsDataURL(file);
             }
+        }
+        
+        function drawText() {
+            const text = textInput.value;
+            ctx.fillStyle = "black";
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(text, canvas.width / 2, 1200);
         }
         
         upload.addEventListener('change', loadImage);
