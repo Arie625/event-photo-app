@@ -160,34 +160,47 @@
 
 
         function drawText() {
-            if (lastCapturedImage) {
-                ctx.putImageData(lastCapturedImage, 0, 0);
-            }
-            const text = textInput.value;
-            ctx.fillStyle = "black";
-            ctx.font = "40px Arial";
-            ctx.textAlign = "center";
+    if (!lastCapturedImage) {
+        alert("Capture a photo first!");
+        return;
+    }
 
-            let maxWidth = canvas.width - 40;
-            let words = text.split(' ');
-            let line = '';
-            let lineHeight = 50;
-            let y = 1120;
+    // Redraw the frame and the captured image
+    drawFrame();
+    ctx.putImageData(lastCapturedImage, 0, 0);
 
-            for (let i = 0; i < words.length; i++) {
-                let testLine = line + words[i] + ' ';
-                let metrics = ctx.measureText(testLine);
-                let testWidth = metrics.width;
-                if (testWidth > maxWidth && i > 0) {
-                    ctx.fillText(line, canvas.width / 2, y);
-                    line = words[i] + ' ';
-                    y += lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
+    const text = textInput.value.trim();
+    if (!text) return; // Don't draw if text is empty
+
+    ctx.fillStyle = "black";
+    ctx.font = "40px Arial";
+    ctx.textAlign = "center";
+
+    let maxWidth = canvas.width - 40;
+    let words = text.split(' ');
+    let line = '';
+    let lineHeight = 50;
+    let y = 1120;
+
+    for (let i = 0; i < words.length; i++) {
+        let testLine = line + words[i] + ' ';
+        let metrics = ctx.measureText(testLine);
+        let testWidth = metrics.width;
+
+        if (testWidth > maxWidth && i > 0) {
             ctx.fillText(line, canvas.width / 2, y);
+            line = words[i] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
         }
+    }
+    ctx.fillText(line, canvas.width / 2, y);
+
+    // Save updated image with text
+    lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
 
         function uploadToDrive() {
             document.getElementById('popup').style.display = 'block';
