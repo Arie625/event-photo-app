@@ -47,6 +47,17 @@
             padding: 10px;
             font-size: 16px;
         }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -64,6 +75,8 @@
     <button onclick="drawText()">Add Text</button>
     <br>
     <button onclick="uploadToDrive()">Upload Photo</button>
+    
+    <div id="popup">Please wait...</div>
 
     <script>
         const canvas = document.getElementById('canvas');
@@ -125,39 +138,8 @@
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        function drawText() {
-            if (lastCapturedImage) {
-                ctx.putImageData(lastCapturedImage, 0, 0);
-            }
-            const text = textInput.value;
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 1070, canvas.width, 210);
-            ctx.fillStyle = "black";
-            ctx.font = "40px Arial";
-            ctx.textAlign = "center";
-            const maxWidth = canvas.width - 40;
-            const lineHeight = 45;
-            const x = canvas.width / 2;
-            let y = 1130;
-            
-            const words = text.split(' ');
-            let line = '';
-            
-            for (let i = 0; i < words.length; i++) {
-                let testLine = line + words[i] + ' ';
-                let testWidth = ctx.measureText(testLine).width;
-                if (testWidth > maxWidth && i > 0) {
-                    ctx.fillText(line, x, y);
-                    line = words[i] + ' ';
-                    y += lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
-            ctx.fillText(line, x, y);
-        }
-
         function uploadToDrive() {
+            document.getElementById('popup').style.display = 'block';
             canvas.toBlob(blob => {
                 const formData = new FormData();
                 formData.append("image", blob, "polaroid.png");
@@ -170,10 +152,12 @@
                 .then(result => {
                     console.log("Upload successful:", result);
                     alert("File Uploaded!");
+                    document.getElementById('popup').style.display = 'none';
                 })
                 .catch(error => {
                     console.error("Upload failed:", error);
                     alert("Upload failed. Check the console for details.");
+                    document.getElementById('popup').style.display = 'none';
                 });
             }, "image/png");
         }
