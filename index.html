@@ -120,28 +120,7 @@
             const x = (canvas.width - photoWidth) / 2;
             const y = topMargin;
 
-            const videoRatio = video.videoWidth / video.videoHeight;
-            const canvasRatio = photoWidth / photoHeight;
-            let drawWidth, drawHeight, offsetX, offsetY;
-
-            if (videoRatio > canvasRatio) {
-                drawHeight = photoHeight;
-                drawWidth = video.videoWidth * (photoHeight / video.videoHeight);
-                offsetX = x + (photoWidth - drawWidth) / 2;
-                offsetY = y;
-            } else {
-                drawWidth = photoWidth;
-                drawHeight = video.videoHeight * (photoWidth / video.videoWidth);
-                offsetX = x;
-                offsetY = y + (photoHeight - drawHeight) / 2;
-            }
-
-            ctx.save();
-            ctx.beginPath();
-            ctx.rect(x, y, photoWidth, photoHeight);
-            ctx.clip();
-            ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
-            ctx.restore();
+            ctx.drawImage(video, x, y, photoWidth, photoHeight);
 
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
@@ -176,6 +155,27 @@
                 }
             }
             ctx.fillText(line, x, y);
+        }
+
+        function uploadToDrive() {
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append("image", blob, "polaroid.png");
+
+                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(result => {
+                    console.log("Upload successful:", result);
+                    alert("File Uploaded!");
+                })
+                .catch(error => {
+                    console.error("Upload failed:", error);
+                    alert("Upload failed. Check the console for details.");
+                });
+            }, "image/png");
         }
 
         function scrollToPreview() {
