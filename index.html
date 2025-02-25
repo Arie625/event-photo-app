@@ -72,6 +72,7 @@
         const textInput = document.getElementById('textInput');
         let currentStream = null;
         let currentFacingMode = 'user';
+        let lastCapturedImage = null;
 
         async function startCamera(facingMode) {
             if (currentStream) {
@@ -141,12 +142,17 @@
             ctx.clip();
             ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
             ctx.restore();
+
+            lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
         function drawText() {
-            drawFrame();
-            capturePhoto();
+            if (lastCapturedImage) {
+                ctx.putImageData(lastCapturedImage, 0, 0);
+            }
             const text = textInput.value;
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 1070, canvas.width, 210);
             ctx.fillStyle = "black";
             ctx.font = "40px Arial";
             ctx.textAlign = "center";
@@ -154,10 +160,6 @@
             const lineHeight = 45;
             const x = canvas.width / 2;
             let y = 1130;
-
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 1070, canvas.width, 210);
-            ctx.fillStyle = "black";
             
             const words = text.split(' ');
             let line = '';
