@@ -109,7 +109,12 @@
                 offsetY = y + (photoHeight - drawHeight) / 2;
             }
 
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x, y, photoWidth, photoHeight);
+            ctx.clip();
             ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+            ctx.restore();
         }
 
         function drawText() {
