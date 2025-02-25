@@ -98,7 +98,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             const photoWidth = 875;
-            const photoHeight = 1000;
+            const photoHeight = 950; 
             const topMargin = 85;
             const x = (canvas.width - photoWidth) / 2;
             const y = topMargin;
@@ -107,14 +107,14 @@
             ctx.fillRect(x, y, photoWidth, photoHeight);
 
             ctx.fillStyle = "white";
-            ctx.fillRect(0, 1100, canvas.width, 180);
+            ctx.fillRect(0, 1070, canvas.width, 210);
         }
 
         function capturePhoto() {
             drawFrame();
 
             const photoWidth = 875;
-            const photoHeight = 1000;
+            const photoHeight = 950; 
             const topMargin = 85;
             const x = (canvas.width - photoWidth) / 2;
             const y = topMargin;
@@ -153,9 +153,10 @@
             const maxWidth = canvas.width - 40;
             const lineHeight = 45;
             const x = canvas.width / 2;
-            let y = 1120;
+            let y = 1130;
 
-            ctx.fillRect(0, 1100, canvas.width, 180);
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 1070, canvas.width, 210);
             ctx.fillStyle = "black";
             
             const words = text.split(' ');
