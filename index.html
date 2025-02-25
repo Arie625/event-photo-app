@@ -134,8 +134,37 @@
             const y = topMargin;
 
             ctx.drawImage(video, x, y, photoWidth, photoHeight);
-
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawText() {
+            if (lastCapturedImage) {
+                ctx.putImageData(lastCapturedImage, 0, 0);
+            }
+            const text = textInput.value;
+            ctx.fillStyle = "black";
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+
+            let maxWidth = canvas.width - 40;
+            let words = text.split(' ');
+            let line = '';
+            let lineHeight = 50;
+            let y = 1120;
+
+            for (let i = 0; i < words.length; i++) {
+                let testLine = line + words[i] + ' ';
+                let metrics = ctx.measureText(testLine);
+                let testWidth = metrics.width;
+                if (testWidth > maxWidth && i > 0) {
+                    ctx.fillText(line, canvas.width / 2, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, canvas.width / 2, y);
         }
 
         function uploadToDrive() {
