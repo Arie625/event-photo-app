@@ -133,14 +133,86 @@
             const x = (canvas.width - photoWidth) / 2;
             const y = topMargin;
 
-            const scale = Math.max(photoWidth / video.videoWidth, photoHeight / video.videoHeight);
-            const scaledWidth = video.videoWidth * scale;
-            const scaledHeight = video.videoHeight * scale;
-            const offsetX = (scaledWidth - photoWidth) / 2;
-            const offsetY = (scaledHeight - photoHeight) / 2;
+            // Get the video frame dimensions
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
+            const videoAspectRatio = videoWidth / videoHeight;
+            const frameAspectRatio = photoWidth / photoHeight;
 
-            ctx.drawImage(video, -offsetX, -offsetY, scaledWidth, scaledHeight);
+            let sourceX, sourceY, sourceWidth, sourceHeight;
+
+            if (videoAspectRatio > frameAspectRatio) {
+                // If the video is wider, crop the sides
+                sourceHeight = videoHeight;
+                sourceWidth = videoHeight * frameAspectRatio;
+                sourceX = (videoWidth - sourceWidth) / 2;
+                sourceY = 0;
+            } else {
+                // If the video is taller, crop the top and bottom
+                sourceWidth = videoWidth;
+                sourceHeight = videoWidth / frameAspectRatio;
+                sourceX = 0;
+                sourceY = (videoHeight - sourceHeight) / 2;
+            }
+
+            // Draw the cropped video frame into the Polaroid photo area
+            ctx.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, x, y, photoWidth, photoHeight);
+
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawText() {
+            if (lastCapturedImage) {
+                ctx.putImageData(lastCapturedImage, 0, 0);
+            }
+            const text = textInput.value;
+            ctx.fillStyle = "black";
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+
+            let maxWidth = canvas.width - 40;
+            let words = text.split(' ');
+            let line = '';
+            let lineHeight = 50;
+            let y = 1120;
+
+            for (let i = 0; i < words.length; i++) {
+                let testLine = line + words[i] + ' ';
+                let metrics = ctx.measureText(testLine);
+                let testWidth = metrics.width;
+                if (testWidth > maxWidth && i > 0) {
+                    ctx.fillText(line, canvas.width / 2, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, canvas.width / 2, y);
+        }
+
+        function uploadToDrive() {
+            document.getElementById('popup').style.display = 'block';
+            canvas.toBlob(blob => {
+                const formData = new FormData();
+                formData.append("image", blob, "polaroid.png");
+
+                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(result => {
+                    console.log("Upload successful:", result);
+                    alert("File Uploaded!");
+                    document.getElementById('popup').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error("Upload failed:", error);
+                    alert("Upload failed. Check the console for details.");
+                    document.getElementById('popup').style.display = 'none';
+                });
+            }, "image/png");
         }
 
         function scrollToPreview() {
