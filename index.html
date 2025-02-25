@@ -125,82 +125,71 @@
         }
 
         function capturePhoto() {
-    drawFrame();
+            drawFrame();
 
-    const photoWidth = 875;
-    const photoHeight = 950;
-    const topMargin = 85;
-    const x = (canvas.width - photoWidth) / 2;
-    const y = topMargin;
+            const photoWidth = 875;
+            const photoHeight = 950;
+            const topMargin = 85;
+            const x = (canvas.width - photoWidth) / 2;
+            const y = topMargin;
 
-    // Get the video frame dimensions
-    const videoAspectRatio = video.videoWidth / video.videoHeight;
-    const frameAspectRatio = photoWidth / photoHeight;
+            // Get the video frame dimensions
+            const videoWidth = video.videoWidth;
+            const videoHeight = video.videoHeight;
+            const videoAspectRatio = videoWidth / videoHeight;
+            const frameAspectRatio = photoWidth / photoHeight;
 
-    let drawWidth, drawHeight, offsetX, offsetY;
+            let sourceX, sourceY, sourceWidth, sourceHeight;
 
-    if (videoAspectRatio > frameAspectRatio) {
-        // Video is wider than the frame; match height and crop width
-        drawHeight = photoHeight;
-        drawWidth = photoHeight * videoAspectRatio;
-        offsetX = (photoWidth - drawWidth) / 2;
-        offsetY = 0;
-    } else {
-        // Video is taller than the frame; match width and crop height
-        drawWidth = photoWidth;
-        drawHeight = photoWidth / videoAspectRatio;
-        offsetX = 0;
-        offsetY = (photoHeight - drawHeight) / 2;
-    }
+            if (videoAspectRatio > frameAspectRatio) {
+                // If the video is wider, crop the sides
+                sourceHeight = videoHeight;
+                sourceWidth = videoHeight * frameAspectRatio;
+                sourceX = (videoWidth - sourceWidth) / 2;
+                sourceY = 0;
+            } else {
+                // If the video is taller, crop the top and bottom
+                sourceWidth = videoWidth;
+                sourceHeight = videoWidth / frameAspectRatio;
+                sourceX = 0;
+                sourceY = (videoHeight - sourceHeight) / 2;
+            }
 
-    // Draw the cropped and centered image on the frame
-    ctx.drawImage(video, x + offsetX, y + offsetY, drawWidth, drawHeight);
-    lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-}
+            // Draw the cropped video frame into the Polaroid photo area
+            ctx.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, x, y, photoWidth, photoHeight);
 
+            lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
 
         function drawText() {
-    if (!lastCapturedImage) {
-        alert("Capture a photo first!");
-        return;
-    }
+            if (lastCapturedImage) {
+                ctx.putImageData(lastCapturedImage, 0, 0);
+            }
+            const text = textInput.value;
+            ctx.fillStyle = "black";
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
 
-    // Redraw the frame and the captured image
-    drawFrame();
-    ctx.putImageData(lastCapturedImage, 0, 0);
+            let maxWidth = canvas.width - 40;
+            let words = text.split(' ');
+            let line = '';
+            let lineHeight = 50;
+            let y = 1120;
 
-    const text = textInput.value.trim();
-    if (!text) return; // Don't draw if text is empty
-
-    ctx.fillStyle = "black";
-    ctx.font = "40px Arial";
-    ctx.textAlign = "center";
-
-    let maxWidth = canvas.width - 40;
-    let words = text.split(' ');
-    let line = '';
-    let lineHeight = 50;
-    let y = 1120;
-
-    for (let i = 0; i < words.length; i++) {
-        let testLine = line + words[i] + ' ';
-        let metrics = ctx.measureText(testLine);
-        let testWidth = metrics.width;
-
-        if (testWidth > maxWidth && i > 0) {
+            for (let i = 0; i < words.length; i++) {
+                let testLine = line + words[i] + ' ';
+                let metrics = ctx.measureText(testLine);
+                let testWidth = metrics.width;
+                if (testWidth > maxWidth && i > 0) {
+                    ctx.fillText(line, canvas.width / 2, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
             ctx.fillText(line, canvas.width / 2, y);
-            line = words[i] + ' ';
-            y += lineHeight;
-        } else {
-            line = testLine;
         }
-    }
-    ctx.fillText(line, canvas.width / 2, y);
-
-    // Save updated image with text
-    lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-}
-
 
         function uploadToDrive() {
             document.getElementById('popup').style.display = 'block';
