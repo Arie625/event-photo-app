@@ -18,11 +18,6 @@
             box-sizing: border-box;
             background-color: #00504c;
         }
-        #banner {
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 20px;
-        }
         #canvas-container {
             max-width: 100%;
             overflow: hidden;
@@ -47,42 +42,23 @@
             padding: 10px;
             font-size: 16px;
         }
-        #popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
     </style>
 </head>
 <body>
-    <img id="banner" src="https://i.imgur.com/BM5pJ7M.png" alt="Banner">
-    <h2 style="color: white;">Polaroid Frame</h2>
-    <video id="video" autoplay></video>
+    <video id="video" autoplay playsinline></video>
     <button onclick="switchCamera()">Switch Camera</button>
-    <button onclick="capturePhoto(); scrollToPreview();">Capture Photo</button>
-    <br>
+    <button onclick="capturePhoto();">Capture Photo</button>
     <div id="canvas-container">
         <canvas id="canvas" width="960" height="1280"></canvas>
     </div>
-    <br>
-    <input type="text" id="textInput" placeholder="Enter your text here" style="margin-top: 20px;">
+    <input type="text" id="textInput" placeholder="Enter your text here">
     <button onclick="drawText()">Add Text</button>
-    <br>
     <button onclick="uploadToDrive()">Upload Photo</button>
     
-    <div id="popup">Please wait...</div>
-
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const video = document.getElementById('video');
-        const textInput = document.getElementById('textInput');
         let currentStream = null;
         let currentFacingMode = 'user';
         let lastCapturedImage = null;
@@ -92,7 +68,14 @@
                 currentStream.getTracks().forEach(track => track.stop());
             }
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+                const constraints = {
+                    video: {
+                        facingMode: facingMode,
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 currentStream = stream;
             } catch (err) {
@@ -107,57 +90,33 @@
 
         startCamera(currentFacingMode);
 
-        function drawFrame() {
+        function capturePhoto() {
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+            
             const photoWidth = 875;
             const photoHeight = 950; 
-            const topMargin = 85;
             const x = (canvas.width - photoWidth) / 2;
-            const y = topMargin;
-
-            ctx.fillStyle = "#ddd";
-            ctx.fillRect(x, y, photoWidth, photoHeight);
-
-            ctx.fillStyle = "white";
-            ctx.fillRect(0, 1070, canvas.width, 210);
-        }
-
-        function capturePhoto() {
-            drawFrame();
-
-            const photoWidth = 875;
-            const photoHeight = 950;
-            const topMargin = 85;
-            const x = (canvas.width - photoWidth) / 2;
-            const y = topMargin;
-
-            // Get the video frame dimensions
-            const videoWidth = video.videoWidth;
-            const videoHeight = video.videoHeight;
-            const videoAspectRatio = videoWidth / videoHeight;
-            const frameAspectRatio = photoWidth / photoHeight;
-
-            let sourceX, sourceY, sourceWidth, sourceHeight;
-
-            if (videoAspectRatio > frameAspectRatio) {
-                // If the video is wider, crop the sides
-                sourceHeight = videoHeight;
-                sourceWidth = videoHeight * frameAspectRatio;
-                sourceX = (videoWidth - sourceWidth) / 2;
-                sourceY = 0;
+            const y = 85;
+            
+            const videoRatio = video.videoWidth / video.videoHeight;
+            const frameRatio = photoWidth / photoHeight;
+            
+            let drawWidth, drawHeight, offsetX, offsetY;
+            
+            if (videoRatio > frameRatio) {
+                drawHeight = photoHeight;
+                drawWidth = drawHeight * videoRatio;
+                offsetX = (photoWidth - drawWidth) / 2;
+                offsetY = 0;
             } else {
-                // If the video is taller, crop the top and bottom
-                sourceWidth = videoWidth;
-                sourceHeight = videoWidth / frameAspectRatio;
-                sourceX = 0;
-                sourceY = (videoHeight - sourceHeight) / 2;
+                drawWidth = photoWidth;
+                drawHeight = drawWidth / videoRatio;
+                offsetX = 0;
+                offsetY = (photoHeight - drawHeight) / 2;
             }
-
-            // Draw the cropped video frame into the Polaroid photo area
-            ctx.drawImage(video, sourceX, sourceY, sourceWidth, sourceHeight, x, y, photoWidth, photoHeight);
-
+            
+            ctx.drawImage(video, x + offsetX, y + offsetY, drawWidth, drawHeight);
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
@@ -165,61 +124,31 @@
             if (lastCapturedImage) {
                 ctx.putImageData(lastCapturedImage, 0, 0);
             }
-            const text = textInput.value;
+            const text = document.getElementById('textInput').value;
             ctx.fillStyle = "black";
             ctx.font = "40px Arial";
             ctx.textAlign = "center";
-
-            let maxWidth = canvas.width - 40;
-            let words = text.split(' ');
-            let line = '';
-            let lineHeight = 50;
-            let y = 1120;
-
-            for (let i = 0; i < words.length; i++) {
-                let testLine = line + words[i] + ' ';
-                let metrics = ctx.measureText(testLine);
-                let testWidth = metrics.width;
-                if (testWidth > maxWidth && i > 0) {
-                    ctx.fillText(line, canvas.width / 2, y);
-                    line = words[i] + ' ';
-                    y += lineHeight;
-                } else {
-                    line = testLine;
-                }
-            }
-            ctx.fillText(line, canvas.width / 2, y);
+            ctx.fillText(text, canvas.width / 2, 1120);
         }
 
         function uploadToDrive() {
-            document.getElementById('popup').style.display = 'block';
             canvas.toBlob(blob => {
+                if (!blob) return;
                 const formData = new FormData();
                 formData.append("image", blob, "polaroid.png");
-
                 fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
                     method: "POST",
                     body: formData
                 })
                 .then(response => response.text())
                 .then(result => {
-                    console.log("Upload successful:", result);
                     alert("File Uploaded!");
-                    document.getElementById('popup').style.display = 'none';
                 })
                 .catch(error => {
                     console.error("Upload failed:", error);
-                    alert("Upload failed. Check the console for details.");
-                    document.getElementById('popup').style.display = 'none';
                 });
             }, "image/png");
         }
-
-        function scrollToPreview() {
-            document.getElementById('canvas-container').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        drawFrame();
     </script>
 </body>
 </html>
