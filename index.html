@@ -63,7 +63,7 @@
 <body>
     <img id="banner" src="https://i.imgur.com/BM5pJ7M.png" alt="Banner">
     <h2 style="color: white;">Polaroid Frame</h2>
-    <video id="video" autoplay></video>
+    <video id="video" autoplay playsinline muted></video>
     <button onclick="switchCamera()">Switch Camera</button>
     <button onclick="capturePhoto(); scrollToPreview();">Capture Photo</button>
     <br>
@@ -92,7 +92,10 @@
                 currentStream.getTracks().forEach(track => track.stop());
             }
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+                const constraints = {
+                    video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 currentStream = stream;
             } catch (err) {
@@ -176,17 +179,13 @@
                 fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
                     method: "POST",
                     body: formData
-                })
-                .then(response => response.text())
-                .then(result => {
-                    console.log("Upload successful:", result);
+                }).then(response => {
+                    document.getElementById('popup').style.display = 'none';
                     alert("File Uploaded!");
+                }).catch(error => {
                     document.getElementById('popup').style.display = 'none';
-                })
-                .catch(error => {
+                    alert("Upload failed. Check console for details.");
                     console.error("Upload failed:", error);
-                    alert("Upload failed. Check the console for details.");
-                    document.getElementById('popup').style.display = 'none';
                 });
             }, "image/png");
         }
