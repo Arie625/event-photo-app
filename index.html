@@ -60,7 +60,7 @@
         <canvas id="canvas" width="960" height="1280"></canvas>
     </div>
     <br>
-    <input type="text" id="textInput" placeholder="Enter your text here">
+    <input type="text" id="textInput" placeholder="Enter your text here" style="margin-top: 20px;">
     <button onclick="drawText()">Add Text</button>
     <br>
     <button onclick="uploadToDrive()">Upload Photo</button>
@@ -70,14 +70,20 @@
         const ctx = canvas.getContext('2d');
         const video = document.getElementById('video');
         const textInput = document.getElementById('textInput');
+        let currentStream = null;
         let currentFacingMode = 'user';
 
-        function startCamera(facingMode) {
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } })
-                .then(stream => {
-                    video.srcObject = stream;
-                })
-                .catch(err => console.error("Camera access denied:", err));
+        async function startCamera(facingMode) {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+                video.srcObject = stream;
+                currentStream = stream;
+            } catch (err) {
+                console.error("Camera access denied:", err);
+            }
         }
 
         function switchCamera() {
@@ -149,6 +155,9 @@
             const x = canvas.width / 2;
             let y = 1120;
 
+            ctx.fillRect(0, 1100, canvas.width, 180);
+            ctx.fillStyle = "black";
+            
             const words = text.split(' ');
             let line = '';
             
