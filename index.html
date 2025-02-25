@@ -93,7 +93,7 @@
             }
             try {
                 const constraints = {
-                    video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }
+                    video: { facingMode: facingMode, aspectRatio: 4/3, width: { ideal: 1280 }, height: { ideal: 960 } }
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
@@ -129,12 +129,11 @@
 
         function capturePhoto() {
             drawFrame();
-
-            const photoWidth = 875;
+            const aspectRatio = video.videoWidth / video.videoHeight;
             const photoHeight = 950; 
-            const topMargin = 85;
+            const photoWidth = photoHeight * aspectRatio;
             const x = (canvas.width - photoWidth) / 2;
-            const y = topMargin;
+            const y = 85;
 
             ctx.drawImage(video, x, y, photoWidth, photoHeight);
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -148,7 +147,6 @@
             ctx.fillStyle = "black";
             ctx.font = "40px Arial";
             ctx.textAlign = "center";
-
             let maxWidth = canvas.width - 40;
             let words = text.split(' ');
             let line = '';
