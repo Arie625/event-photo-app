@@ -18,6 +18,11 @@
             box-sizing: border-box;
             background-color: #00504c;
         }
+        #banner {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
         #canvas-container {
             max-width: 100%;
             overflow: hidden;
@@ -42,23 +47,42 @@
             padding: 10px;
             font-size: 16px;
         }
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-    <video id="video" autoplay playsinline></video>
+    <img id="banner" src="https://i.imgur.com/BM5pJ7M.png" alt="Banner">
+    <h2 style="color: white;">Polaroid Frame</h2>
+    <video id="video" autoplay></video>
     <button onclick="switchCamera()">Switch Camera</button>
-    <button onclick="capturePhoto();">Capture Photo</button>
+    <button onclick="capturePhoto(); scrollToPreview();">Capture Photo</button>
+    <br>
     <div id="canvas-container">
         <canvas id="canvas" width="960" height="1280"></canvas>
     </div>
-    <input type="text" id="textInput" placeholder="Enter your text here">
+    <br>
+    <input type="text" id="textInput" placeholder="Enter your text here" style="margin-top: 20px;">
     <button onclick="drawText()">Add Text</button>
+    <br>
     <button onclick="uploadToDrive()">Upload Photo</button>
     
+    <div id="popup">Please wait...</div>
+
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const video = document.getElementById('video');
+        const textInput = document.getElementById('textInput');
         let currentStream = null;
         let currentFacingMode = 'user';
         let lastCapturedImage = null;
@@ -68,14 +92,7 @@
                 currentStream.getTracks().forEach(track => track.stop());
             }
             try {
-                const constraints = {
-                    video: {
-                        facingMode: facingMode,
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    }
-                };
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
                 video.srcObject = stream;
                 currentStream = stream;
             } catch (err) {
@@ -90,65 +107,47 @@
 
         startCamera(currentFacingMode);
 
-        function capturePhoto() {
+        function drawFrame() {
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             const photoWidth = 875;
             const photoHeight = 950; 
+            const topMargin = 85;
             const x = (canvas.width - photoWidth) / 2;
-            const y = 85;
-            
-            const videoRatio = video.videoWidth / video.videoHeight;
-            const frameRatio = photoWidth / photoHeight;
-            
-            let drawWidth, drawHeight, offsetX, offsetY;
-            
-            if (videoRatio > frameRatio) {
-                drawHeight = photoHeight;
-                drawWidth = drawHeight * videoRatio;
-                offsetX = (photoWidth - drawWidth) / 2;
-                offsetY = 0;
-            } else {
-                drawWidth = photoWidth;
-                drawHeight = drawWidth / videoRatio;
-                offsetX = 0;
-                offsetY = (photoHeight - drawHeight) / 2;
-            }
-            
-            ctx.drawImage(video, x + offsetX, y + offsetY, drawWidth, drawHeight);
+            const y = topMargin;
+
+            ctx.fillStyle = "#ddd";
+            ctx.fillRect(x, y, photoWidth, photoHeight);
+
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 1070, canvas.width, 210);
+        }
+
+        function capturePhoto() {
+            drawFrame();
+
+            const photoWidth = 875;
+            const photoHeight = 950;
+            const topMargin = 85;
+            const x = (canvas.width - photoWidth) / 2;
+            const y = topMargin;
+
+            const scale = Math.max(photoWidth / video.videoWidth, photoHeight / video.videoHeight);
+            const scaledWidth = video.videoWidth * scale;
+            const scaledHeight = video.videoHeight * scale;
+            const offsetX = (scaledWidth - photoWidth) / 2;
+            const offsetY = (scaledHeight - photoHeight) / 2;
+
+            ctx.drawImage(video, -offsetX, -offsetY, scaledWidth, scaledHeight);
             lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        function drawText() {
-            if (lastCapturedImage) {
-                ctx.putImageData(lastCapturedImage, 0, 0);
-            }
-            const text = document.getElementById('textInput').value;
-            ctx.fillStyle = "black";
-            ctx.font = "40px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(text, canvas.width / 2, 1120);
+        function scrollToPreview() {
+            document.getElementById('canvas-container').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function uploadToDrive() {
-            canvas.toBlob(blob => {
-                if (!blob) return;
-                const formData = new FormData();
-                formData.append("image", blob, "polaroid.png");
-                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(result => {
-                    alert("File Uploaded!");
-                })
-                .catch(error => {
-                    console.error("Upload failed:", error);
-                });
-            }, "image/png");
-        }
+        drawFrame();
     </script>
 </body>
 </html>
