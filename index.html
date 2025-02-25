@@ -125,17 +125,39 @@
         }
 
         function capturePhoto() {
-            drawFrame();
+    drawFrame();
 
-            const photoWidth = 875;
-            const photoHeight = 950; 
-            const topMargin = 85;
-            const x = (canvas.width - photoWidth) / 2;
-            const y = topMargin;
+    const photoWidth = 875;
+    const photoHeight = 950;
+    const topMargin = 85;
+    const x = (canvas.width - photoWidth) / 2;
+    const y = topMargin;
 
-            ctx.drawImage(video, x, y, photoWidth, photoHeight);
-            lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        }
+    // Get the video frame dimensions
+    const videoAspectRatio = video.videoWidth / video.videoHeight;
+    const frameAspectRatio = photoWidth / photoHeight;
+
+    let drawWidth, drawHeight, offsetX, offsetY;
+
+    if (videoAspectRatio > frameAspectRatio) {
+        // Video is wider than the frame; match height and crop width
+        drawHeight = photoHeight;
+        drawWidth = photoHeight * videoAspectRatio;
+        offsetX = (photoWidth - drawWidth) / 2;
+        offsetY = 0;
+    } else {
+        // Video is taller than the frame; match width and crop height
+        drawWidth = photoWidth;
+        drawHeight = photoWidth / videoAspectRatio;
+        offsetX = 0;
+        offsetY = (photoHeight - drawHeight) / 2;
+    }
+
+    // Draw the cropped and centered image on the frame
+    ctx.drawImage(video, x + offsetX, y + offsetY, drawWidth, drawHeight);
+    lastCapturedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
 
         function drawText() {
             if (lastCapturedImage) {
