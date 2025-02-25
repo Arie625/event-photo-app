@@ -129,7 +129,26 @@
             ctx.fillStyle = "black";
             ctx.font = "40px Arial";
             ctx.textAlign = "center";
-            ctx.fillText(text, canvas.width / 2, 1200);
+            const maxWidth = canvas.width - 40;
+            const lineHeight = 45;
+            const x = canvas.width / 2;
+            let y = 1120;
+
+            const words = text.split(' ');
+            let line = '';
+            
+            for (let i = 0; i < words.length; i++) {
+                let testLine = line + words[i] + ' ';
+                let testWidth = ctx.measureText(testLine).width;
+                if (testWidth > maxWidth && i > 0) {
+                    ctx.fillText(line, x, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, x, y);
         }
 
         function uploadToDrive() {
