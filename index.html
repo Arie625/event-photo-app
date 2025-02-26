@@ -191,11 +191,16 @@
             ctx.fillText(line, canvas.width / 2, y);
         }
 
-        function uploadToDrive() {
+       function uploadToDrive() {
     document.getElementById('popup').style.display = 'block';
+
+    // Generate a unique filename using timestamp
+    const timestamp = Date.now();  // Example: 1700001234567
+    const fileName = `polaroid_${timestamp}.png`;
+
     canvas.toBlob(blob => {
         const formData = new FormData();
-        formData.append("image", blob, "polaroid.png");
+        formData.append("image", blob, fileName);  // Use the unique filename
 
         fetch("https://google-drive-uploader-rou1.onrender.com/upload", { // Update the API endpoint
             method: "POST",
@@ -214,6 +219,7 @@
         });
     }, "image/png");
 }
+
 
         function scrollToPreview() {
             document.getElementById('canvas-container').scrollIntoView({ behavior: 'smooth' });
