@@ -192,28 +192,28 @@
         }
 
         function uploadToDrive() {
-            document.getElementById('popup').style.display = 'block';
-            canvas.toBlob(blob => {
-                const formData = new FormData();
-                formData.append("image", blob, "polaroid.png");
+    document.getElementById('popup').style.display = 'block';
+    canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append("image", blob, "polaroid.png");
 
-                fetch("https://hooks.zapier.com/hooks/catch/21832570/2gmhqk0/", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(result => {
-                    console.log("Upload successful:", result);
-                    alert("File Uploaded!");
-                    document.getElementById('popup').style.display = 'none';
-                })
-                .catch(error => {
-                    console.error("Upload failed:", error);
-                    alert("Upload failed. Check the console for details.");
-                    document.getElementById('popup').style.display = 'none';
-                });
-            }, "image/png");
-        }
+        fetch("https://google-drive-uploader-rou1.onrender.com/upload", { // Update the API endpoint
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            console.log("Upload successful:", result);
+            alert("File Uploaded!");
+            document.getElementById('popup').style.display = 'none';
+        })
+        .catch(error => {
+            console.error("Upload failed:", error);
+            alert("Upload failed. Check the console for details.");
+            document.getElementById('popup').style.display = 'none';
+        });
+    }, "image/png");
+}
 
         function scrollToPreview() {
             document.getElementById('canvas-container').scrollIntoView({ behavior: 'smooth' });
