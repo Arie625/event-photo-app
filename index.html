@@ -195,21 +195,25 @@
     document.getElementById('popup').style.display = 'block';
 
     // Generate a unique filename using timestamp
-    const timestamp = Date.now();  // Example: 1700001234567
+    const timestamp = Date.now();  
     const fileName = `polaroid_${timestamp}.png`;
+
+    console.log("Generated filename:", fileName); // Debugging log
 
     canvas.toBlob(blob => {
         const formData = new FormData();
-        formData.append("image", blob, fileName);  // Use the unique filename
+        formData.append("image", blob, fileName);  
 
-        fetch("https://google-drive-uploader-rou1.onrender.com/upload", { // Update the API endpoint
+        console.log("FormData content:", formData.get("image")); // Debugging log
+
+        fetch("https://google-drive-uploader-rou1.onrender.com/upload", { 
             method: "POST",
             body: formData
         })
         .then(response => response.json())
         .then(result => {
             console.log("Upload successful:", result);
-            alert("File Uploaded!");
+            alert(`File Uploaded as ${fileName}`);
             document.getElementById('popup').style.display = 'none';
         })
         .catch(error => {
@@ -219,6 +223,7 @@
         });
     }, "image/png");
 }
+
 
 
         function scrollToPreview() {
